@@ -1,46 +1,42 @@
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { getTokenWithPKCE } from "./InspectorOAuthClientProvider.js";
+import { AsgardeoClient } from "./AsgardeoClient.js";
+
+const client = new AsgardeoClient({
+  name: 'streamable-http-client-example',
+  version: '1.0.0',
+  serverBaseUrl: process.env.SERVER_BASE_URL,
+  clientId: process.env.CLIENT_ID!,
+  authorizationEndpoint: process.env.AUTHORIZATION_ENDPOINT!,
+  tokenEndpoint: process.env.TOKEN_ENDPOINT!,
+  redirectUri: process.env.REDIRECT_URI!,
+  scope: process.env.SCOPE!,
+});
 
 const main = async () => {
-  const client = new Client({ name: 'streamable-http-client-example', version: '1.0.0' });
-  const baseUrl = new URL('http://localhost:3000/mcp');
-
-  let authToken = null;
   try {
-    authToken = await getTokenWithPKCE();
-  } catch (e) {
-    console.error('OAuth2 PKCE authentication failed:', e);
-    process.exit(1);
-  }
-
-  const headers = { Authorization: `Bearer ${authToken}` };
-  const transport = new StreamableHTTPClientTransport(baseUrl, { requestInit: { headers } });
-  try {
-    await client.connect(transport);
-    console.log("Connected");
-    const tools = await client.listTools();
+    const tools = await client.secureListTools();
     console.log('Tools:', tools);
 
-    let result;
-    result = await client.callTool({
-            name: "get_pet_vaccination_info",
-            arguments: {
-                petId: "123",
-                authorizationToken: authToken,
-            }
-        });
+    const getInfo = await client.secureCallTool({
+      name: "get_pet_vaccination_info",
+      arguments: {
+        petId: "123"
+      }
+    });
+    console.log("Result:", getInfo);
 
-    console.log("Result:", result);
+    const bookAppointment = await client.secureCallTool({
+      name: "book_vet_appointment",
+      arguments: {
+        petId: "123",
+        date: "2025-05-13",
+        time: "11:06 AM",
+        reason: "Routine checkup"
+      }
+    });
+    console.log("Result:", bookAppointment);
 
-    
-  } catch (err: any) {
-    const msg = err?.message || err?.body || String(err);
-    if (msg.includes("401") || msg.includes("invalid_token")) {
-      console.error("Authentication failed: No token or invalid token provided.");
-    } else {
-      console.error("MCP error:", msg);
-    }
+  } catch (err) {
+    console.error("Unhandled error:", err);
   }
 };
 

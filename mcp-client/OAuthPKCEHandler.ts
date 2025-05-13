@@ -17,12 +17,17 @@ function sha256(buffer: string) {
 /**
  * Handles OAuth2 PKCE authentication and returns an access token.
  */
-export async function getTokenWithPKCE(): Promise<string> {
-  const authorizationEndpoint = process.env.AUTHORIZATION_ENDPOINT!;
-  const tokenEndpoint = process.env.TOKEN_ENDPOINT!;
-  const clientId = process.env.CLIENT_ID!;
-  const redirectUri = process.env.REDIRECT_URI!;
-  const scope = process.env.SCOPE!;
+
+export interface OAuthPKCEParams {
+  authorizationEndpoint: string;
+  tokenEndpoint: string;
+  clientId: string;
+  redirectUri: string;
+  scope: string;
+}
+
+export async function getTokenWithPKCE(params: OAuthPKCEParams): Promise<string> {
+  const { authorizationEndpoint, tokenEndpoint, clientId, redirectUri, scope } = params;
 
   // 1. Generate code verifier and code challenge
   const codeVerifier = base64URLEncode(crypto.randomBytes(32));
@@ -58,17 +63,17 @@ export async function getTokenWithPKCE(): Promise<string> {
   const code = await authCodePromise;
 
   // 5. Exchange code for token
-  const params = new URLSearchParams();
-  params.append('grant_type', 'authorization_code');
-  params.append('client_id', clientId);
-  params.append('code', code);
-  params.append('redirect_uri', redirectUri);
-  params.append('code_verifier', codeVerifier);
+  const tokenParams = new URLSearchParams();
+  tokenParams.append('grant_type', 'authorization_code');
+  tokenParams.append('client_id', clientId);
+  tokenParams.append('code', code);
+  tokenParams.append('redirect_uri', redirectUri);
+  tokenParams.append('code_verifier', codeVerifier);
 
   const resp = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
+    body: tokenParams.toString(),
   });
   if (!resp.ok) {
     throw new Error(`Token endpoint error: ${resp.status} ${await resp.text()}`);
