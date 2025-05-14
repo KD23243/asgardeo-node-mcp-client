@@ -3,7 +3,7 @@ import express from "express";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { AsgardeoOAuthClientProvider } from "./AsgardeoAuthProvider.js";
 import dotenv from "dotenv";
-import { auth, exchangeAuthorization, startAuthorization } from "@modelcontextprotocol/sdk/client/auth.js";
+import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
 
 dotenv.config();
 
