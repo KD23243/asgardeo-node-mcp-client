@@ -62,4 +62,3 @@ This project demonstrates how to use the [Model Context Protocol (MCP)](https://
 - `client.ts` – Main entry point; handles OAuth flow and MCP client connection.
 - `AsgardeoAuthProvider.ts` – Custom OAuth provider implementation for Asgardeo.
 - `.env` – Environment variables (not committed to version control).
-- `.env` – Environment variables (not committed to version control).
