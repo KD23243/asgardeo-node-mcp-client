@@ -54,19 +54,16 @@ dotenv.config();
     console.error("OAuth callback error:", error);
   }
 
-  console.log("Auth result:", result);
-
-  //   const transport = new StreamableHTTPClientTransport(new URL("http://localhost:3000/mcp"), { authProvider });
-  //     const client = new Client(
-  //       {
-  //         name: "example-client",
-  //         version: "1.0.0"
-  //       }
-  //     );
-
-  //     await client.connect(transport);
-  //     console.log("Connected");
-  //     const tools = await client.listTools();
-  //     console.log('Tools:', tools);
-
+  if (result === "AUTHORIZED") {
+    const transport = new StreamableHTTPClientTransport(new URL("http://localhost:3000/mcp"), { authProvider });
+    const client = new Client(
+      {
+        name: "example-client",
+        version: "1.0.0"
+      }
+    );
+    await client.connect(transport);
+    const tools = await client.listTools();
+    console.log('Tools:', tools);
+  }
 })();
